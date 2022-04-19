@@ -27,9 +27,9 @@ Definimos os parâmetros de cada thread:
 um range e o vetor em que ela vai atuar
 */
 typedef struct thread_args {
-	int inicio;
-	int fim;
 	int* vetor;
+	int tam_vetor;
+	int index_inicial;
 } thread_args;
 
 /*
@@ -43,9 +43,12 @@ void *square (void* args) {
 	thread_args t_args = * (thread_args*) args;
 	
 	// Montamos o subvetor e realizamos o quadrado em seus elementos
-	for (int i = (t_args.inicio); i < (t_args.fim); i++) {
+	for (int i = t_args.index_inicial; i < t_args.tam_vetor; i += NUM_THREADS + 1) {
 		t_args.vetor[i] *= t_args.vetor[i];
 	}
+
+	// Libera o espaço de memória dos argumentos
+	free(args);
 	
 	pthread_exit(NULL);
 }
@@ -57,7 +60,199 @@ int main (void) {
 	// Preenchendo o vetor_quadrado
 	for (int i = 0; i < (TAM_VETOR); i++) {
 		// vetor[0] = 1, vetor[1] = 2, etc.
-		vetor_quadrado[i] = i+1;
+		vetor_quadrado[i] =         //int copia_vetor[tam_vetor];
+78
+        
+79
+        // Preenchemos a cópia do vetor
+80
+        for (int i = 0; i < (tam_vetor); i++) {
+81
+                copia_vetor[i] = vetor_quadrado[i];
+82
+        }
+83
+        
+84
+        // Criamos os argumentos necessários para cada thread
+85
+        thread_args vetor_args[NUM_THREADS] = {{0, tam_vetor/2, vetor_quadrado}, {tam_vetor/2, tam_vetor, vetor_quadrado}};
+86
+        
+87
+​
+88
+        // Criação das threads propriamente ditas
+89
+        for (int i = 0; i < NUM_THREADS; i++) {
+90
+        
+91
+                // Se não conseguiu criar thread, joga erro
+92
+                if (pthread_create(&thread_id[i], NULL, square, (void *)&vetor_args[i])) {
+93
+                        printf("Erro de thread");
+94
+                }
+95
+        }
+96
+        
+97
+        // Sincronização das threads após execução
+98
+        for (int i = 0; i < NUM_THREADS; i++) {
+99
+        
+100
+                // Se não conseguiu encerrar thread, joga erro
+101
+                if (pthread_join(thread_id[i], NULL)) {
+102
+                        printf("Erro de thread");
+103
+                }
+104
+        }
+105
+        
+106
+        // Checamos se a operação está correta
+107
+        int correto = 1;
+108
+        for (int i = 0; i < (tam_vetor); i++) {
+109
+                if (vetor_quadrado[i] != (copia_vetor[i] * copia_vetor[i])) {
+110
+                printf("%d != %d*%d \n", vetor_quadrado[i], copia_vetor[i], copia_vetor[i]);
+111
+                        correto = 0;
+112
+                }
+113
+        }
+114
+        
+115
+        if (correto == 1) {
+116
+                printf("Operação correta!\n");
+117
+        }
+118
+        else {
+119
+                printf("Operação incorreta!\n");
+120
+        }
+121
+        
+122
+        // Fim do programa
+123
+        return 0;
+124        //int copia_vetor[tam_vetor];
+78
+        
+79
+        // Preenchemos a cópia do vetor
+80
+        for (int i = 0; i < (tam_vetor); i++) {
+81
+                copia_vetor[i] = vetor_quadrado[i];
+82
+        }
+83
+        
+84
+        // Criamos os argumentos necessários para cada thread
+85
+        thread_args vetor_args[NUM_THREADS] = {{0, tam_vetor/2, vetor_quadrado}, {tam_vetor/2, tam_vetor, vetor_quadrado}};
+86
+        
+87
+​
+88
+        // Criação das threads propriamente ditas
+89
+        for (int i = 0; i < NUM_THREADS; i++) {
+90
+        
+91
+                // Se não conseguiu criar thread, joga erro
+92
+                if (pthread_create(&thread_id[i], NULL, square, (void *)&vetor_args[i])) {
+93
+                        printf("Erro de thread");
+94
+                }
+95
+        }
+96
+        
+97
+        // Sincronização das threads após execução
+98
+        for (int i = 0; i < NUM_THREADS; i++) {
+99
+        
+100
+                // Se não conseguiu encerrar thread, joga erro
+101
+                if (pthread_join(thread_id[i], NULL)) {
+102
+                        printf("Erro de thread");
+103
+                }
+104
+        }
+105
+        
+106
+        // Checamos se a operação está correta
+107
+        int correto = 1;
+108
+        for (int i = 0; i < (tam_vetor); i++) {
+109
+                if (vetor_quadrado[i] != (copia_vetor[i] * copia_vetor[i])) {
+110
+                printf("%d != %d*%d \n", vetor_quadrado[i], copia_vetor[i], copia_vetor[i]);
+111
+                        correto = 0;
+112
+                }
+113
+        }
+114
+        
+115
+        if (correto == 1) {
+116
+                printf("Operação correta!\n");
+117
+        }
+118
+        else {
+119
+                printf("Operação incorreta!\n");
+120
+        }
+121
+        
+122
+        // Fim do programa
+123
+        return 0;
+124
+}
+125
+
+}
+125
+i+1;
 		//printf("%d \n", (vetor_quadrado[i]));
 		
 	}
@@ -82,7 +277,7 @@ int main (void) {
 	}
 	
 	// Criamos os argumentos necessários para cada thread
-	thread_args vetor_args[NUM_THREADS] = {{0, tam_vetor/2, vetor_quadrado}, {tam_vetor/2, tam_vetor, vetor_quadrado}};
+	thread_args vetor_args[NUM_THREADS] = {{vetor_quadrado, tam_vetor, 1}, {vetor_quadrado, tam_vetor, 2}};
 	
 
 	// Criação das threads propriamente ditas
@@ -92,6 +287,11 @@ int main (void) {
 		if (pthread_create(&thread_id[i], NULL, square, (void *)&vetor_args[i])) {
 			printf("Erro de thread");
 		}
+	}
+
+	// Execução da thread principal
+	for (int i = 0; i < tam_vetor; i += NUM_THREADS + 1) {
+		vetor_quadrado[i] *= vetor_quadrado[i];
 	}
 	
 	// Sincronização das threads após execução
@@ -107,7 +307,6 @@ int main (void) {
 	int correto = 1;
 	for (int i = 0; i < (tam_vetor); i++) {
 		if (vetor_quadrado[i] != (copia_vetor[i] * copia_vetor[i])) {
-		printf("%d != %d*%d \n", vetor_quadrado[i], copia_vetor[i], copia_vetor[i]);
 			correto = 0;
 		}
 	}
