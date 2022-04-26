@@ -30,9 +30,9 @@ void * tarefa(void *arg) {
     tArgs *args = (tArgs*) arg;
 
     for (int i = (args->id); i < (args->dim); i += num_threads) {
-      for (int j = (args->id); j < (args->dim); j += num_threads) {
-         for (int k = (args->id); k < (args->dim); k += num_threads) {
-            saida[i + j*(args->dim)] += matriz_1[i + k*(args->dim)] * matriz_2[k + j*(args->dim)];
+      for (int j = 0; j < (args->dim); j++) {
+         for (int k = 0; k < (args->dim); k++) {
+            saida[i*(args->dim) + j] += matriz_1[i*(args->dim) + k] * matriz_2[k*(args->dim) + j];
          }
       }
     }
@@ -47,6 +47,7 @@ int main(int argc, char* argv[]) {
     // Declaração das variáveis:
 
     int dim; // Dimensões das matrizes quadradas
+    int erro = 0; // Flag de erro da comparação de matrizes (começa desativado)
     pthread_t *thread_id; // Idents. das threads no sistema
     tArgs *args; // Idents. locais das threads e dimensões
 
@@ -77,7 +78,7 @@ int main(int argc, char* argv[]) {
 
     // Convertendo os parâmetros de string para int
     dim = atoi(argv[1]);
-    num_threads = atoi(argv[3]);
+    num_threads = atoi(argv[2]);
 
 
     /*
@@ -149,30 +150,6 @@ int main(int argc, char* argv[]) {
     // Guarda o fim da 1a parte do programa
     GET_TIME(fim_pt1);
     
-    // Guarda o início do processamento sequencial
-    GET_TIME(inicio_seq);
-
-
-    for (int i = 0; i < dim; i ++) {
-      for (int j = 0; j < dim; j ++) {
-         for (int k = 0; k < dim; k ++) {
-            saida[i + j*dim] += matriz_1[i + k*dim] * matriz_2[k + j*dim];
-         }
-      }
-    }
-
-
-    // Guarda o fim do processamento sequencial
-    GET_TIME(fim_seq);
-
-
-    // Reseta a matriz de saída
-    for (int i = 0; i < dim; i++) {
-        for (int j = 0; j < dim; j++) {
-            saida[i + j*dim] = 0; // saida[i][j] = 0;
-        }
-    }
-
 
     // Guarda o início do processamento concorrente
     GET_TIME(inicio_conc);
@@ -198,13 +175,13 @@ int main(int argc, char* argv[]) {
             return -3;
         }
     }
-
+    
 
     // Processamento da thread principal
     for (int i = 0; i < dim; i += num_threads) {
-      for (int j = 0; j < dim; j += num_threads) {
-         for (int k = 0; k < dim; k += num_threads) {
-            saida[i + j*dim] += matriz_1[i + k*dim] * matriz_2[k + j*dim];
+      for (int j = 0; j < dim; j++) {
+         for (int k = 0; k < dim; k++) {
+            saida[i*dim + j] += matriz_1[i*dim + k] * matriz_2[k*dim + j];
          }
       }
     }
@@ -219,6 +196,25 @@ int main(int argc, char* argv[]) {
     // Guarda o fim do processamento concorrente
     GET_TIME(fim_conc);
 
+
+    // Guarda o início do processamento sequencial
+    GET_TIME(inicio_seq);
+
+
+    for (int i = 0; i < dim; i++) {
+      for (int j = 0; j < dim; j++) {
+         for (int k = 0; k < dim; k++) {
+             if (saida[i + j*dim] != matriz_1[i + k*dim] * matriz_2[k + j*dim]) {
+                erro = 1;
+            }
+         }
+      }
+    }
+
+    // Guarda o fim do processamento sequencial
+    GET_TIME(fim_seq);
+
+
     // Guarda o início da 2a parte do programa
     GET_TIME(inicio_pt2);
 
@@ -229,6 +225,13 @@ int main(int argc, char* argv[]) {
     free(saida);
     free(thread_id);
     free(args);
+
+
+    // Avisa caso o cálculo sequencial e concorrente sejam diferentes
+    if (erro) {
+        fprintf(stderr, "ERRO--calculo de matriz\n");
+        return -4;
+    }
 
 
     // Guarda o fim da 2a parte do programa
@@ -243,7 +246,7 @@ int main(int argc, char* argv[]) {
 
     delta = (tempo_pt1 + tempo_seq + tempo_pt2)/(tempo_pt1 + tempo_conc + tempo_pt2);
 
-    printf("Tempo em computação sequencial: %lf \nTempo em computação concorrente: %lf \nTempo economizado: %lf \n", tempo_seq, tempo_conc, delta);
+    printf("Tempo em computação sequencial: %lf \nTempo em computação concorrente: %lf \nAceleração: %lf \n", tempo_seq, tempo_conc, delta);
 
     return 0;
 }
