@@ -200,16 +200,20 @@ int main(int argc, char* argv[]) {
     // Guarda o início do processamento sequencial
     GET_TIME(inicio_seq);
 
-
+    double soma = 0.0;
     for (int i = 0; i < dim; i++) {
       for (int j = 0; j < dim; j++) {
          for (int k = 0; k < dim; k++) {
-             if (saida[i + j*dim] != matriz_1[i + k*dim] * matriz_2[k + j*dim]) {
-                erro = 1;
-            }
+            soma += matriz_1[i + k*dim] * matriz_2[k + j*dim];
          }
+         if (saida[i + j*dim] != soma){
+             erro = 1;
+         }
+         printf("matriz seq[%d][%d]: %lf \n", i,j, soma);
+         printf("matriz conc[%d][%d]: %lf \n", i,j, saida[i + j*dim]);
+         soma = 0.0;
       }
-    }
+    } 
 
     // Guarda o fim do processamento sequencial
     GET_TIME(fim_seq);
