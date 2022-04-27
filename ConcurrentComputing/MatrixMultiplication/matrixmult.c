@@ -247,7 +247,7 @@ int main(int argc, char* argv[]) {
         return -4;
     }
     else {
-        printf("Matrizes idênticas\n")
+        printf("Matrizes idênticas\n");
     }
 
 
