@@ -246,6 +246,9 @@ int main(int argc, char* argv[]) {
         fprintf(stderr, "ERRO--calculo de matriz\n");
         return -4;
     }
+    else {
+        printf("Matrizes idênticas\n")
+    }
 
 
     // Guarda o fim da 2a parte do programa
