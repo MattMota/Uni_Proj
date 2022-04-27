@@ -12,7 +12,7 @@
 // Declaração das variáveis globais:
 
 // Matrizes de entrada no. 1 e no. 2, e de saída
-float *matriz_1, *matriz_2, *saida;
+int *matriz_1, *matriz_2, *saida_conc, *saida_seq;
 
 // Quantidade de threads
 int num_threads;
@@ -32,7 +32,7 @@ void * tarefa(void *arg) {
     for (int i = (args->id); i < (args->dim); i += num_threads) {
       for (int j = 0; j < (args->dim); j++) {
          for (int k = 0; k < (args->dim); k++) {
-            saida[i*(args->dim) + j] += matriz_1[i*(args->dim) + k] * matriz_2[k*(args->dim) + j];
+            saida_conc[i*(args->dim) + j] += matriz_1[i*(args->dim) + k] * matriz_2[k*(args->dim) + j];
          }
       }
     }
@@ -108,22 +108,28 @@ int main(int argc, char* argv[]) {
     }
 
     // Matriz 1
-    matriz_1 = (float *) malloc(sizeof(float) * dim * dim);
+    matriz_1 = (int *) malloc(sizeof(int) * dim * dim);
     if (matriz_1 == NULL) {
         fprintf(stderr, "ERRO--malloc\n");
         return -2;
     }
 
     // Matriz 2
-    matriz_2 = (float *) malloc(sizeof(float) * dim * dim);
+    matriz_2 = (int *) malloc(sizeof(int) * dim * dim);
     if (matriz_2 == NULL) {
         fprintf(stderr, "ERRO--malloc\n");
         return -2;
     }
 
-    // Matriz resultante (de saída)
-    saida = (float *) malloc(sizeof(float) * dim * dim);
-    if (saida == NULL) {
+    // Matrizes resultantes
+    saida_conc = (int *) malloc(sizeof(int) * dim * dim);
+    if (saida_conc == NULL) {
+        fprintf(stderr, "ERRO--malloc\n");
+        return -2;
+    }
+
+    saida_seq = (int *) malloc(sizeof(int) * dim * dim);
+    if (saida_seq == NULL) {
         fprintf(stderr, "ERRO--malloc\n");
         return -2;
     }
@@ -142,7 +148,8 @@ int main(int argc, char* argv[]) {
         for (int j = 0; j < dim; j++) {
             matriz_1[i + j*dim] = rand(); // matriz_1[i][j] = rand();
             matriz_2[i + j*dim] = rand(); // matriz_2[i][j] = rand();
-            saida[i + j*dim] = 0; // saida[i][j] = 0;
+            saida_seq[i + j*dim] = 0; // saida[i][j] = 0;
+            saida_conc[i + j*dim] = 0; // saida[i][j] = 0;
         }
     }
 
@@ -181,7 +188,7 @@ int main(int argc, char* argv[]) {
     for (int i = 0; i < dim; i += num_threads) {
       for (int j = 0; j < dim; j++) {
          for (int k = 0; k < dim; k++) {
-            saida[i*dim + j] += matriz_1[i*dim + k] * matriz_2[k*dim + j];
+            saida_conc[i*dim + j] += matriz_1[i*dim + k] * matriz_2[k*dim + j];
          }
       }
     }
@@ -200,20 +207,13 @@ int main(int argc, char* argv[]) {
     // Guarda o início do processamento sequencial
     GET_TIME(inicio_seq);
 
-    double soma = 0.0;
     for (int i = 0; i < dim; i++) {
-      for (int j = 0; j < dim; j++) {
-         for (int k = 0; k < dim; k++) {
-            soma += matriz_1[i + k*dim] * matriz_2[k + j*dim];
-         }
-         if (saida[i + j*dim] != soma){
-             erro = 1;
-         }
-         printf("matriz seq[%d][%d]: %lf \n", i,j, soma);
-         printf("matriz conc[%d][%d]: %lf \n", i,j, saida[i + j*dim]);
-         soma = 0.0;
-      }
-    } 
+        for (int j = 0; j < dim; j++) {
+            for (int k = 0; k < dim; k++) {
+                saida_seq[i*dim + j] += matriz_1[i*dim + k] * matriz_2[k*dim + j];
+            }
+        }
+    }
 
     // Guarda o fim do processamento sequencial
     GET_TIME(fim_seq);
@@ -222,11 +222,21 @@ int main(int argc, char* argv[]) {
     // Guarda o início da 2a parte do programa
     GET_TIME(inicio_pt2);
 
+    for (int i = 0; i < dim; i++) {
+      for (int j = 0; j < dim; j++) {
+        //printf("[%d, %d]\nSeq: %d | Conc: %d\n\n", i, j, saida_seq[i*dim + j], saida_conc[i*dim + j]);
+        if (saida_conc[i*dim + j] != saida_seq[i*dim + j]) {
+            erro = 1;
+        }
+      }
+    }
+
 
     // Liberação da memória
     free(matriz_1);
     free(matriz_2);
-    free(saida);
+    free(saida_conc);
+    free(saida_seq);
     free(thread_id);
     free(args);
 
