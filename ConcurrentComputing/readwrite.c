@@ -61,10 +61,10 @@ void inicio_escrita (int id) {
         printf("E[%d] bloqueou\n", id);
         esperando++;
         pthread_cond_wait(&cond_escrita, &mutex);
+        esperando--;
         printf("E[%d] desbloqueou\n", id);
     }
     // Anota que vai começar a ler
-    esperando--;
     escrevendo++;
     // "Libera" o mutex para outras threads usarem
     pthread_mutex_unlock(&mutex);
