@@ -38,7 +38,7 @@ void inicio_leitura (int id) {
     printf("L[%d] quer ler\n", id);
     // Enquanto houver escritores trabalhando,
     // espera todos acabarem, mesmo recebendo signal
-    while (escrevendo) {
+    while (escrevendo || esperando) {
         // Espera terminar a(s) escritas(s)
         printf("L[%d] bloqueou\n", id);
         pthread_cond_wait(&cond_leitura, &mutex);
