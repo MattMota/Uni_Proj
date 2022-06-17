@@ -47,9 +47,9 @@ _DIF !=
 */
 _COMENTARIO ((\/\*([^\*]|\*[^\/])*\*\/)|(\/\/[^\n]*))
 
-/*
-_STRING (("([^"\n\\]*|("")|(\\"))*")|('([^'\n\\]*|('')|(\\'))*'))
-*/
+_STRING (("([^\n"\\]|""|\\")*")|('([^\n'\\]|''|\\')*'))
+
+_STRING2 (`[^`]*`)
 
 %%
     /* Padrões e ações. Nesta seção, comentários devem ter um tab antes */
@@ -61,16 +61,24 @@ _STRING (("([^"\n\\]*|("")|(\\"))*")|('([^'\n\\]*|('')|(\\'))*'))
 {_INT}          { return _INT; }
 
 {_FLOAT}        { return _FLOAT; }
+
 {_IF}           { return _IF; }
+
 {_MAIG}         { return _MAIG; }
+
 {_MEIG}         { return _MEIG; }
+
 {_IG}           { return _IG; }
+
 {_DIF}          { return _DIF; }
+
+{_STRING}       { return _STRING; }
+
+{_STRING2}       { return _STRING2; }
+
 {_COMENTARIO}   { return _COMENTARIO; }
-    /*    {_STRING}       { return _STRING; }   */
+
 {_ID}           { return _ID; }
-
-
 
 .       { return *yytext; 
           /* Essa deve ser a última regra. Dessa forma qualquer caractere isolado será retornado pelo seu código ascii. */ }
