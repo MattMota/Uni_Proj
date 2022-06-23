@@ -18,7 +18,7 @@ A mais significativa é:
 - "extends Thread" faz com que cada thread crie um objeto
   para si e se associe a ele
 
-- "implements Runnable" compartilha o meso objeto criado
+- "implements Runnable" compartilha o mesmo objeto criado
   entre todas as threads
 */
 
@@ -75,11 +75,11 @@ final class ResultHolder {
 public class EvenNumbers {
     public static void main(String[] args) {    
         // Cria variáveis de thread
-        final int nThreads = 5;
+        final int nThreads = 7;
         Thread[] threadsArray = new Thread[nThreads];
 
         // Cria variáveis de números
-        final int arraySize = 10000;
+        final int arraySize = 250000;
         int[] numbersArray = new int[arraySize];
         int counter = 0;
 
