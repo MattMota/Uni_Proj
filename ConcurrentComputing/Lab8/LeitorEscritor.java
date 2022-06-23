@@ -1,3 +1,5 @@
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Random;
 
 //--------------------------------------------------------
@@ -10,7 +12,7 @@ class LeitorEscritor {
 
     public static void main (String[] args) {
         // Variáveis de execução
-        Integer var = 0;
+        Var var = new Var(0);
         Monitor monitor = new Monitor();
 
         // Execução propriamente dita
@@ -46,70 +48,111 @@ class LeitorEscritor {
 // Classes das threads (precisam estar definidas
 // no main para não dar problema de escopo ao acessar
 // var e monitor)
+//
+// Fiz cada thread rodar por 5 segundos para
+// haver bastante interação entre elas (Instant
+// e Duration são thread-safe segundo doc. do Java)
 
 class T1 extends Thread {
     private int id;
     private Monitor monitor;
-    private Integer var;
+    private Var var;
 
-    public T1(int id, Monitor monitor, Integer var) {
+    public T1(int id, Monitor monitor, Var var) {
         this.id = id;
         this.monitor = monitor;
         this.var = var;
     }
 
+    // Roda por 5 segundos
     public void run() {
-        monitor.EntraEscritor("\"" + this.getClass().getSimpleName() + ", id " + this.id + "\"");
-        var++;
-        monitor.SaiEscritor("\"" + this.getClass().getSimpleName() + ", id " + this.id + "\"");
+        Instant start = Instant.now();
+        Instant finish;
+        do {
+            finish = Instant.now();
+            monitor.EntraEscritor("\"" + this.getClass().getSimpleName() + ", id " + this.id + "\"");
+            var.setVar(var.getVar()+1);
+            monitor.SaiEscritor("\"" + this.getClass().getSimpleName() + ", id " + this.id + "\"");
+        } while(Duration.between(start, finish).toSeconds() < 5);
     }
 }
 
 class T2 extends Thread {
     private int id;
     private Monitor monitor;
-    private Integer var;
+    private Var var;
 
-    public T2(int id, Monitor monitor, Integer var) {
+    public T2(int id, Monitor monitor, Var var) {
         this.id = id;
         this.monitor = monitor;
         this.var = var;
     }
 
+    // Roda por 5 segundos
     public void run() {
-        monitor.EntraLeitor("\"" + this.getClass().getSimpleName() + ", id " + this.id + "\"");
-        if (var % 2 == 0) {
-            System.out.println("print(\""+var + " e par\")");
-        } else {
-            System.out.println("print(\""+var + " e impar\")");
-        }
-        monitor.SaiLeitor("\"" + this.getClass().getSimpleName() + ", id " + this.id + "\"");
+        Instant start = Instant.now();
+        Instant finish;
+        do {
+            finish = Instant.now();
+            monitor.EntraLeitor("\"" + this.getClass().getSimpleName() + ", id " + this.id + "\"");
+            if (var.getVar() % 2 == 0) {
+                System.out.println("print(\""+ var.getVar() + " e par\")");
+            } else {
+                System.out.println("print(\""+ var.getVar() + " e impar\")");
+            }
+            monitor.SaiLeitor("\"" + this.getClass().getSimpleName() + ", id " + this.id + "\"");
+        } while(Duration.between(start, finish).toSeconds() < 5);
     }
 }
 
 class T3 extends Thread {
     private int id;
     private Monitor monitor;
-    private Integer var;
+    private Var var;
 
-    public T3(int id, Monitor monitor, Integer var) {
+    public T3(int id, Monitor monitor, Var var) {
         this.id = id;
         this.monitor = monitor;
         this.var = var;
     }
 
+    // Roda por 5 segundos
     public void run() {
-        monitor.EntraLeitor("\"" + this.getClass().getSimpleName() + ", id " + this.id + "\"");
-        System.out.println("print(\"Var = " + var + "\")");
-        monitor.SaiLeitor("\"" + this.getClass().getSimpleName() + ", id " + this.id + "\"");
+        Instant start = Instant.now();
+        Instant finish;
+        do {
+            finish = Instant.now();
+            monitor.EntraLeitor("\"" + this.getClass().getSimpleName() + ", id " + this.id + "\"");
+            System.out.println("print(\"Var = " + var.getVar() + "\")");
+            monitor.SaiLeitor("\"" + this.getClass().getSimpleName() + ", id " + this.id + "\"");
 
-        monitor.EntraEscritor("\"" + this.getClass().getSimpleName() + ", id " + this.id + "\"");
-        for (int i = 100000; i > 0; i--) {
-            Random r = new Random();
-            int gastatempo = (r.nextInt(i)+1)/(id+1);
-        }
-        var = this.id;
-        monitor.SaiEscritor("\"" + this.getClass().getSimpleName() + ", id " + this.id + "\"");
+            monitor.EntraEscritor("\"" + this.getClass().getSimpleName() + ", id " + this.id + "\"");
+            for (int i = 100000; i > 0; i--) {
+                Random r = new Random();
+                int gastatempo = (r.nextInt(i)+1)/(id+1);
+            }
+            var.setVar(this.id);
+            monitor.SaiEscritor("\"" + this.getClass().getSimpleName() + ", id " + this.id + "\"");
+        } while(Duration.between(start, finish).toSeconds() < 5);
+    }
+}
+
+//--------------------------------------------------------
+// Monitor que implementa a logica do padrao leitores/escritores
+
+class Var {
+    private int var;
+
+    Var(int var) {
+        this.var = var;
+    }
+
+    public void setVar(int var){
+        this.var = var;
+    }
+
+    public int getVar() {
+        return this.var;
     }
 }
 
