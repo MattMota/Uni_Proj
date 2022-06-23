@@ -26,9 +26,9 @@ class LeitorEscritor {
             }
         
             public void run() {
-                monitor.EntraEscritor(this.getClass().getSimpleName()+": id "+this.id);
+                monitor.EntraEscritor("\"" + this.getClass().getSimpleName() + ", id " + this.id + "\"");
                 var++;
-                monitor.SaiEscritor(this.getClass().getSimpleName()+": id "+this.id);
+                monitor.SaiEscritor("\"" + this.getClass().getSimpleName() + ", id " + this.id + "\"");
             }
         }
 
@@ -40,13 +40,13 @@ class LeitorEscritor {
             }
         
             public void run() {
-                monitor.EntraLeitor(this.getClass().getSimpleName()+": id "+this.id);
+                monitor.EntraLeitor("\"" + this.getClass().getSimpleName() + ", id " + this.id + "\"");
                 if (var % 2 == 0) {
-                    System.out.println(var + " é par");
+                    System.out.println("print(\""+var + " e par\")");
                 } else {
-                    System.out.println(var + " é ímpar");
+                    System.out.println("print(\""+var + " e impar\")");
                 }
-                monitor.SaiLeitor(this.getClass().getSimpleName()+": id "+this.id);
+                monitor.SaiLeitor("\"" + this.getClass().getSimpleName() + ", id " + this.id + "\"");
             }
         }
         
@@ -58,17 +58,17 @@ class LeitorEscritor {
             }
         
             public void run() {
-                monitor.EntraLeitor(this.getClass().getSimpleName()+": id "+this.id);
-                System.out.println("Var = " + var);
-                monitor.SaiLeitor(this.getClass().getSimpleName()+": id "+this.id);
+                monitor.EntraLeitor("\"" + this.getClass().getSimpleName() + ", id " + this.id + "\"");
+                System.out.println("print(\"Var = " + var + "\")");
+                monitor.SaiLeitor("\"" + this.getClass().getSimpleName() + ", id " + this.id + "\"");
 
-                monitor.EntraEscritor(this.getClass().getSimpleName()+": id "+this.id);
+                monitor.EntraEscritor("\"" + this.getClass().getSimpleName() + ", id " + this.id + "\"");
                 for (int i = 100000; i > 0; i--) {
                     Random r = new Random();
                     int gastatempo = (r.nextInt(i)+1)/(id+1);
                 }
                 var = this.id;
-                monitor.SaiEscritor(this.getClass().getSimpleName()+": id "+this.id);
+                monitor.SaiEscritor("\"" + this.getClass().getSimpleName() + ", id " + this.id + "\"");
             }
         }
 
