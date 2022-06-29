@@ -24,9 +24,10 @@ void* threadFunc(void* tid) {
             sem_wait(&cond_meio); // Espera T5 executar
             printf("Fique a vontade.\n");
             mensagens++; // Incrementa o contador de mensagens
-            sem_post(&cond_meio); // Permite que T3 e T4 executem
             if (mensagens == 4) // Se todas as demais mensagens foram impressas
                 sem_post(&cond_fim); // Permite que T1 execute se houve 3 posts desse
+            else // Caso contrário
+                sem_post(&cond_meio); // Permite que T3 e T4 executem
             pthread_exit(NULL);
             break;
         // Função executada pela thread 3
@@ -34,9 +35,10 @@ void* threadFunc(void* tid) {
             sem_wait(&cond_meio); // Espera T5 executar
             printf("Sente-se por favor.\n");
             mensagens++; // Incrementa o contador de mensagens
-            sem_post(&cond_meio); // Permite que T2 e T4 executem
             if (mensagens == 4) // Se todas as demais mensagens foram impressas
                 sem_post(&cond_fim); // Permite que T1 execute se houve 3 posts desse
+            else // Caso contrário
+                sem_post(&cond_meio); // Permite que T2 e T4 executem
             pthread_exit(NULL);
             break;
         // Função executada pela thread 4
@@ -44,9 +46,10 @@ void* threadFunc(void* tid) {
             sem_wait(&cond_meio); // Espera T1 executar
             printf("“Aceita um copo d'agua?”\n");
             mensagens++; // Incrementa o contador de mensagens
-            sem_post(&cond_meio); // Permite que T2 e T3 executem
             if (mensagens == 4) // Se todas as demais mensagens foram impressas
                 sem_post(&cond_fim); // Permite que T1 execute se houve 3 posts desse
+            else // Caso contrário
+                sem_post(&cond_meio); // Permite que T2 e T3 executem
             pthread_exit(NULL);
             break;
         // Função executada pela thread 5
