@@ -80,7 +80,7 @@ int main(int argc, char *argv[]) {
     pois só pode executar quando receber 1, depois que
     T2, T3 e T4 forem executadas e todas fizerem sem_post(&cond_fim)
     */
-    sem_init(&cond_fim, 0, -2);
+    sem_init(&cond_fim, 0, 0);
 
     // Criamos as threads individuais
     for (long int i = 0; i < NTHREADS; i++) {
@@ -97,4 +97,7 @@ int main(int argc, char *argv[]) {
             exit(-1); 
         } 
     }
+
+    sem_destroy(&cond_meio);
+    sem_destroy(&cond_fim);
 }
