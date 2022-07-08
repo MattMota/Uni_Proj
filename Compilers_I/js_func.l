@@ -35,10 +35,6 @@ STRING (\"((\"\")|(\\\")|([^\"\n]))*\")|(\'((\'\')|(\\\')|([^\'\n]))*\')
 
 "<="       { return MEIG; }
 
-">"        { return MAI; }
-
-"<"        { return MEN; }
-
 "!="       { return DIF; }
 
 "+="       { return SOMAATR; }

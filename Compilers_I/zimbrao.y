@@ -69,9 +69,7 @@ S : CMD S  { $$.c = $1.c + $2.c; }
 CMD : CMD_LET ';' { $$ = $1; }
     | CMD_IF
     | CMD_WHILE
-    | CMD_FOR
     | RVALUE ';'  { $$.c = $1.c + "^"; }
-    | ';'         { $$.c.clear(); }
     ;
   
 CMD_LET : LET IDs { $$ = $2; }
@@ -114,26 +112,6 @@ CMD_WHILE : WHILE '(' E ')' CMD_BLOCK
             }
           ;
 
-CMD_FOR : FOR '(' E_FOR ';' E ';' ATRIB_FOR ')' CMD_BLOCK
-          { string start_for = gera_label("start_for"),
-            end_for = gera_label("end_for");
-            // Set initial conditions (1st E), define "start_for"
-            $$.c = $3.c + define_label(start_for)
-            // Is 2nd E false? If so, go to "end_for"
-            + $5.c + "!" + usa_label(end_for) + "?"
-            // "For" commands; do 3rd E; go to "start_for"
-            + $9.c + $7.c + usa_label(start_for)
-            // Define label "end_for"
-            + define_label(end_for);
-          }
-          ;
-
-E_FOR : CMD_LET
-      | ATRIB
-      ;
-
-ATRIB_FOR : 
-
 CMD_BLOCK : // Blocos de comando do "if"
            CMD       { $$.c = $1.c; }
          | '{' S '}' { $$.c = $2.c; }
@@ -143,8 +121,6 @@ ATRIB : LVALUE '=' RVALUE { $$.c = $1.c + $3.c + "="; }
       | LVALUE SOMAATR RVALUE { $$.c = $1.c + $1.c + "@" + $3.c + "+" + "="; }
       | LVALUEPROP '=' RVALUE { $$.c = $1.c + $3.c + "[=]"; }
       | LVALUEPROP SOMAATR RVALUE { $$.c = $1.c + $1.c + "[@]" + $3.c + "+" + "[=]"; }
-      | ID INCR { $$.c = $1.c + $1.c + "@" + "1" + "+" + "=" + "^"; }
-      | ID DECR { $$.c = $1.c + $1.c + "@" + "1" + "-" + "=" + "^"; }
       |
       ;
        
@@ -194,7 +170,7 @@ LVALUEPROP : E '.' ID    { $$.c = $1.c + $3.c; }
 RVALUE : E
        | ATRIB
        ;
-     
+
 %%
 #include "lex.yy.c"
 
