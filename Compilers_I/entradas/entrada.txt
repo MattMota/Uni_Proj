@@ -1,0 +1,8 @@
+let a = {}, campo = "c";
+
+for( let i = 0; i < 6; i++ ) {
+  a[campo = campo + i] = i;
+};
+
+let maior = 4, menor = 5;
+let tru = ( maior < menor );
